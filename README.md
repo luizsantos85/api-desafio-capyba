@@ -8,7 +8,7 @@
 -   **[nginx:alpine]**
 -   **[mysql:8.0](https://www.mysql.com/)**
 -   **[redis]**
--   **[Laravel:9](https://laravel.com/)**
+-   **[Laravel:10](https://laravel.com/)**
 -   **[PHP:8.1\*](https://www.php.net/manual/pt_BR/index.php)**
 -   **[docker]**
 
