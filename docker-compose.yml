@@ -1,0 +1,82 @@
+version: "3.8" #versão do docker
+
+services: #montagem dos serviços que o docker irá utilizar
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        working_dir: /var/www/
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www
+        depends_on:
+            - redis
+            - queue
+        networks:
+            - docker-laravel
+
+    #nginx
+    nginx:
+        image: nginx:alpine
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
+        networks:
+            - docker-laravel
+
+    # db
+    mysql:
+        image: mysql:8.0
+        restart: unless-stopped
+        # platform: linux/x86_64
+        ports:
+            - "3307:3306"
+        volumes:
+            - ./.docker/mysql:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - docker-laravel
+
+ # PHPMyAdmin
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        restart: unless-stopped
+        ports:
+            - "8080:80"
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-userpass}
+        networks:
+            - docker-laravel
+
+    #queue
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        command: "php artisan queue:work"
+        volumes:
+            - ./:/var/www
+        depends_on:
+            - redis
+        networks:
+            - docker-laravel
+
+    #redis
+    redis:
+        image: redis:latest
+        networks:
+            - docker-laravel
+
+networks:
+    docker-laravel:
+        driver: bridge
