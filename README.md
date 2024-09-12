@@ -15,7 +15,7 @@
 ## Instalar App Usando docker
 
 ```bash
-$ git clone https://github.com/...
+$ git clone https://github.com/luizsantos85/api-desafio-capyba.git
 
 **observar as configurações de portas e usuario no arquivo docker-composer.yml
 
