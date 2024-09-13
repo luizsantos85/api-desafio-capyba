@@ -12,9 +12,11 @@ Route::post('/create-user', [UserController::class, 'create']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/auth/new-password', [PasswordResetController::class, 'newPassword']);
+    Route::post('/user/new-password', [PasswordResetController::class, 'newPassword']);
+    Route::post('/user/update', [UserController::class, 'update']);
+    Route::get('/user', [UserController::class, 'show']);
 
-    
+
 });
 
 Route::get('/', function () {
