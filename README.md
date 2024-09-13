@@ -35,10 +35,13 @@ $ composer install
 **Gerar a key do laravel
 $ php artisan key:generate
 
+**Gerar as migrations do banco
+$ php artisan migrate
+
 **acessar localhost:(porta selecionada) para acessar o sistema
 ```
 
-## Instalar App Usando Laravel
+## Instalar App diretamente na maquina
 
 ```bash
 $ git clone https://github.com/luizsantos85/api-desafio-capyba.git
@@ -46,7 +49,6 @@ $ git clone https://github.com/luizsantos85/api-desafio-capyba.git
 **Necessário ter o composer instalado
 
 **Copiar o .env.example e gerar o .env, fazer as modificações das portas (se necessário) e usuario do DB
-**Criar o banco de dados no mysql (api-capyba)
 
 **Instalar os packges do laravel
 $ composer install
@@ -54,6 +56,7 @@ $ composer install
 **Gerar a key do laravel
 $ php artisan key:generate
 
+**Criar o banco de dados no mysql (api-capyba)
 **Gerar as migrations do banco
 $ php artisan migrate
 
