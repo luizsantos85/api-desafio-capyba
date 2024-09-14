@@ -16,7 +16,7 @@ class UserController extends Controller
             $imageName = null;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;
-                $imageName = $imageService->createOrUpdateImage($request->image);
+                $imageName = $imageService->createOrUpdateImage($request->image,'user');
             }
 
             $newUser = User::create([
@@ -46,12 +46,12 @@ class UserController extends Controller
     public function update(UpdateCreateUserRequest $request)
     {
         $data = $request->validated();
-        try {
-            $user = auth()->user();
+        $user = auth()->user();
 
+        try {
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;
-                $data['image'] = $imageService->createOrUpdateImage($data['image'], $user);
+                $data['image'] = $imageService->createOrUpdateImage($data['image'],'user', $user);
             }
 
             $user->update($data);

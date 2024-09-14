@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/user/new-password', [PasswordResetController::class, 'newPassword']);
     Route::put('/user/update', [UserController::class, 'update']);
     Route::get('/user', [UserController::class, 'show']);
+
+    Route::prefix('posts')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('posts.index');
+        // Route::post('/store', [PostController::class, 'store'])->name('posts.store');
+        // Route::get('/show/{id}', [PostController::class, 'show'])->name('posts.show');
+        // Route::put('/update/{id}', [PostController::class, 'update'])->name('posts.update');
+        // Route::get('/delete/{id}', [PostController::class, 'destroy'])->name('posts.delete');
+    });
 
 
 });
