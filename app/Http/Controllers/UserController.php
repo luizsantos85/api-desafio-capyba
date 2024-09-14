@@ -4,19 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\ImageService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Http\Requests\UpdateCreateUserRequest;
 
 class UserController extends Controller
 {
-    public function create(Request $request)
+    public function create(UpdateCreateUserRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6',
-            'image' => 'nullable|image'
-        ]);
+        $data = $request->validated();
 
         try {
             $imageName = null;
@@ -26,9 +20,9 @@ class UserController extends Controller
             }
 
             $newUser = User::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password' => bcrypt($validatedData['password']),
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
                 'image' => $imageName
             ]);
 
@@ -49,32 +43,18 @@ class UserController extends Controller
         return response()->json(['user' => $user], 200);
     }
 
-    public function update(Request $request)
+    public function update(UpdateCreateUserRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . auth()->user()->id,
-            'image' => 'nullable|image'
-        ]);
-
+        $data = $request->validated();
         try {
             $user = auth()->user();
 
-            if ($request->filled('name')) {
-                $user->name = $validatedData['name'];
-            }
-
-            if ($request->filled('email') && $validatedData['email'] !== $user->email) {
-                $user->email = $validatedData['email'];
-            }
-
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;
-                $imageName = $imageService->createOrUpdateImage($request->image, $user);
-                $user->image = $imageName;
+                $data['image'] = $imageService->createOrUpdateImage($data['image'], $user);
             }
 
-            $user->save();
+            $user->update($data);
 
             return response()->json(['user' => $user], 200);
         } catch (\Exception $e) {
