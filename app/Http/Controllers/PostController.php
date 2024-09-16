@@ -2,27 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
+use App\Models\User;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
     public function index(Request $request)
     {
+        $params = $request->all();
         $user = auth()->user();
 
-        $pageSize = $request->query('page_size', 10);
-        $page = $request->query('page', 1);
-        $search = $request->query('search', '');
+        $posts = $this->search($params, $user);
 
-        $posts = $user->posts()
-            ->when($search, function ($query) use ($search) {
-                $query->where('title', 'LIKE', "%{$search}%")
-                ->orWhere('content', 'LIKE', "%{$search}%");
-            })
-        ->paginate($pageSize, ['*'], 'page', $page);
-
-        if($posts->isEmpty()){
-            return response()->json(['error' => 'Nenhum post encontrado.'], 400);
+        if ($posts->isEmpty()) {
+            return response()->json(['error' => 'Nenhum post encontrado.'], 404);
         }
 
         return response()->json(['posts' => $posts], 200);
@@ -30,21 +25,99 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+
+        try {
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $imageService = new ImageService;
+                $data['image'] = $imageService->createOrUpdateImage($request->image, 'posts');
+            }
+
+            $post = $request->user()->posts()->create($data);
+
+            return response()->json(['post' => $post], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao criar o post: ' . $e->getMessage()], 500);
+        }
     }
 
     public function show(string $id)
     {
-        //
+        $user = auth()->user();
+        $post = Post::where('user_id', $user->id)->where('id', $id)->first();
+
+        if (!$post) {
+            return response()->json(['error' => 'Nenhum post encontrado.'], 404);
+        }
+
+        return response()->json(['post' => $post], 200);
     }
 
     public function update(Request $request, string $id)
     {
-        //
+        $data = $request->all();
+        $user = auth()->user();
+        $post = Post::where('user_id', $user->id)->where('id', $id)->first();
+
+        if (!$post) {
+            return response()->json(['error' => 'Nenhum post encontrado.'], 404);
+        }
+
+        try {
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $imageService = new ImageService;
+                $data['image'] = $imageService->createOrUpdateImage($data['image'], 'posts', $post);
+            }
+
+            $post->update($data);
+
+            return response()->json(['post' => $post], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao atualizar o post: ' . $e->getMessage()], 500);
+        }
     }
 
     public function destroy(string $id)
     {
-        //
+        $user = auth()->user();
+        $post = Post::where('user_id', $user->id)->where('id', $id)->first();
+
+        if (!$post) {
+            return response()->json(['error' => 'Nenhum post encontrado.'], 404);
+        }
+
+        try {
+            if ($post->image) {
+                $imageService = new ImageService;
+                $imageService->deleteImage('posts', $post->image);
+            }
+
+            $post->delete();
+
+            return response()->json(['success' => true], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao deletar o post: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function search(array $params, User $user)
+    {
+        $pageSize = $params['page_size'] ?? 10;
+        $page = $params['page'] ?? 1;
+        $params['ordering'] = $params['ordering'] ?? 'id';
+        $sortDirection = $params['ordering'][0] === '-' ? 'desc' : 'asc';
+        $ordering = ltrim($params['ordering'], '-');
+
+        $posts = Post::where('user_id', $user->id)
+            ->when(isset($params['search']) && !empty($params['search']), function ($query) use ($params) {
+                $query->where(function ($q) use ($params) {
+                    $q->where('title', 'LIKE', "%{$params['search']}%")
+                        ->orWhere('content', 'LIKE', "%{$params['search']}%");
+                });
+            })
+            ->orderBy($ordering, $sortDirection)
+            ->paginate($pageSize, ['*'], 'page', $page);
+
+        return $posts;
     }
 }

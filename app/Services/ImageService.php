@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageService
 {
-    public function createOrUpdateImage($image, $folder, $user = null)
+    public function createOrUpdateImage($image, $folder, $data = null)
     {
-        if (isset($user) && $user->image) {
-            if (Storage::exists("images/{$folder}/{$user->image}")) {
-                Storage::delete("images/{$folder}/{$user->image}");
+        if (isset($data) && $data->image) {
+            if (Storage::exists("images/{$folder}/{$data->image}")) {
+                Storage::delete("images/{$folder}/{$data->image}");
             }
         }
 
@@ -23,6 +23,15 @@ class ImageService
         }
 
         return $nameFile;
+    }
+
+    public function deleteImage($folder, $imageName)
+    {
+        if (Storage::exists("images/{$folder}/{$imageName}")) {
+            Storage::delete("images/{$folder}/{$imageName}");
+        }
+
+        return true;
     }
 
 }

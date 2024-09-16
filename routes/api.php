@@ -18,11 +18,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
 
     Route::prefix('posts')->group(function () {
-        Route::get('/', [PostController::class, 'index'])->name('posts.index');
-        // Route::post('/store', [PostController::class, 'store'])->name('posts.store');
-        // Route::get('/show/{id}', [PostController::class, 'show'])->name('posts.show');
-        // Route::put('/update/{id}', [PostController::class, 'update'])->name('posts.update');
-        // Route::get('/delete/{id}', [PostController::class, 'destroy'])->name('posts.delete');
+        Route::get('/', [PostController::class, 'index']);
+        Route::post('/store', [PostController::class, 'store']);
+        Route::get('/show/{id}', [PostController::class, 'show']);
+
+        //Apenas usuarios com confirmação de email poderam editar/deletar posts
+        Route::put('/update/{id}', [PostController::class, 'update']);
+        Route::delete('/delete/{id}', [PostController::class, 'destroy']);
     });
 
 
