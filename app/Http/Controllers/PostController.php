@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdatecreatePostRequest;
 use App\Models\Post;
 use App\Models\User;
 use App\Services\ImageService;
@@ -23,7 +24,7 @@ class PostController extends Controller
         return response()->json(['posts' => $posts], 200);
     }
 
-    public function store(Request $request)
+    public function store(UpdatecreatePostRequest $request)
     {
         $data = $request->all();
 
@@ -53,10 +54,14 @@ class PostController extends Controller
         return response()->json(['post' => $post], 200);
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdatecreatePostRequest $request, string $id)
     {
-        $data = $request->all();
         $user = auth()->user();
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json(['error' => 'Você precisa verificar seu e-mail para atualizar o post.'], 403);
+        }
+
         $post = Post::where('user_id', $user->id)->where('id', $id)->first();
 
         if (!$post) {
@@ -64,6 +69,8 @@ class PostController extends Controller
         }
 
         try {
+            $data = $request->all();
+
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;
                 $data['image'] = $imageService->createOrUpdateImage($data['image'], 'posts', $post);
@@ -80,6 +87,11 @@ class PostController extends Controller
     public function destroy(string $id)
     {
         $user = auth()->user();
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json(['error' => 'Você precisa verificar seu e-mail para deletar o post.'], 403);
+        }
+
         $post = Post::where('user_id', $user->id)->where('id', $id)->first();
 
         if (!$post) {

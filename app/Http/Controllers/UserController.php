@@ -16,7 +16,7 @@ class UserController extends Controller
             $imageName = null;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;
-                $imageName = $imageService->createOrUpdateImage($request->image,'user');
+                $imageName = $imageService->createOrUpdateImage($request->image, 'user');
             }
 
             $newUser = User::create([
@@ -27,6 +27,7 @@ class UserController extends Controller
             ]);
 
             $token = $newUser->createToken('auth_token')->plainTextToken;
+            $newUser->sendEmailVerificationNotification();
 
             return response()->json([
                 'token' => $token,
@@ -51,7 +52,7 @@ class UserController extends Controller
         try {
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;
-                $data['image'] = $imageService->createOrUpdateImage($data['image'],'user', $user);
+                $data['image'] = $imageService->createOrUpdateImage($data['image'], 'user', $user);
             }
 
             $user->update($data);
@@ -62,4 +63,36 @@ class UserController extends Controller
         }
     }
 
+    public function verifyEmailUser(string $id, string $hash)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não encontrado'], 404);
+        }
+
+        if (hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+            if (!$user->hasVerifiedEmail()) {
+                $user->markEmailAsVerified();
+                return response()->json(['message' => 'Email verificado com sucesso'], 200);
+            } else {
+                return response()->json(['message' => 'Email já verificado'], 200);
+            }
+        }
+
+        return response()->json(['error' => 'Verificação falhou'], 400);
+    }
+
+    public function resendVerificationEmail(string $id)
+    {
+        $user = User::find($id);
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Seu e-mail já está verificado.'], 400);
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Link de verificação enviado para o seu e-mail.'], 200);
+    }
 }
