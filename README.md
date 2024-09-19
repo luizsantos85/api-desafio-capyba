@@ -10,6 +10,7 @@
 -   **[redis]**
 -   **[Laravel:10](https://laravel.com/)**
 -   **[PHP:8.1\*](https://www.php.net/manual/pt_BR/index.php)**
+-   **[L5-Swagger](https://github.com/DarkaOnLine/L5-Swagger)**
 -   **[docker]**
 
 ## Instalar App Usando docker
@@ -39,6 +40,7 @@ $ php artisan key:generate
 $ php artisan migrate
 
 **acessar localhost:(porta selecionada) para acessar o sistema
+**acessar documentação api - localhost:(porta selecionada)/api/documentation/
 ```
 
 ## Instalar App diretamente na maquina

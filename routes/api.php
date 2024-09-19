@@ -18,9 +18,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::prefix('user')->group(function () {
         Route::post('/new-password', [PasswordResetController::class, 'newPassword']);
-        Route::put('/update', [UserController::class, 'update']);
         Route::post('/{id}/verify/resend/', [UserController::class, 'resendVerificationEmail']);
-        Route::get('/', [UserController::class, 'show']);
+        Route::put('/update', [UserController::class, 'update']);
+        Route::get('/profile', [UserController::class, 'show']);
     });
 
     Route::prefix('posts')->group(function () {
