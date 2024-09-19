@@ -39,11 +39,17 @@ $ php artisan key:generate
 **Gerar as migrations do banco
 $ php artisan migrate
 
+**Rodar os testes com phpunit
+$ ./vendor/bin/phpunit
+ou
+$ php artisan test
+
 **acessar localhost:(porta selecionada) para acessar o sistema
 **acessar documentação api - localhost:(porta selecionada)/api/documentation/
+
 ```
 
-## Instalar App diretamente na maquina
+## Instalar App diretamente na maquina Caso tenha um servidor local (Apache/Nginx)
 
 ```bash
 $ git clone https://github.com/luizsantos85/api-desafio-capyba.git
