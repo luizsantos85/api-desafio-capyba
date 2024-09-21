@@ -113,7 +113,7 @@ class PostController extends Controller
      */
     public function store(UpdatecreatePostRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
 
         try {
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -230,7 +230,7 @@ class PostController extends Controller
         }
 
         try {
-            $data = $request->all();
+            $data = $request->validated();
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imageService = new ImageService;

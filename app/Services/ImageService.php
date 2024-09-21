@@ -16,7 +16,7 @@ class ImageService
 
         $ext = $image->extension();
         $nameFile = uniqid() . ".{$ext}";
-        $imagePath = $image->storeAs("images/{$folder}", $nameFile);
+        $imagePath = $image->storeAs("images/{$folder}", $nameFile, 'public');
 
         if (!$imagePath) {
             throw new \Exception('Falha no upload da imagem.');
