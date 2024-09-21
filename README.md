@@ -44,8 +44,8 @@ $ ./vendor/bin/phpunit
 ou
 $ php artisan test '(interface mais amigavel)'
 
-**acessar localhost:(porta selecionada) para acessar o sistema
-**acessar documentação api - localhost:(porta selecionada)/api/documentation/
+**acessar localhost:8000 para acessar o sistema
+**acessar documentação api - localhost:8000/api/documentation/
 
 ```
 
